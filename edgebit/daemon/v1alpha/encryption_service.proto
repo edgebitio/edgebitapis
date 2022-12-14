@@ -1,0 +1,29 @@
+syntax = "proto3";
+package edgebit.daemon.v1alpha;
+
+option go_package = "github.com/edgebitio/edgebit-go/proto/edgebit/daemon/v1alpha";
+
+service EncryptionService {
+  rpc Encrypt(EncryptRequest) returns (EncryptResponse) {}
+  rpc Decrypt(DecryptRequest) returns (DecryptResponse) {}
+}
+
+message EncryptRequest {
+  map<string, string> tenant = 1;
+  map<string, string> labels = 2;
+  bytes plaintext = 3;
+}
+
+message EncryptResponse {
+  bytes ciphertext = 1;
+}
+
+message DecryptRequest {
+  map<string, string> tenant = 1;
+  map<string, string> labels = 2;
+  bytes ciphertext = 3;
+}
+
+message DecryptResponse {
+  bytes plaintext = 1;
+}
