@@ -1,0 +1,48 @@
+syntax = "proto3";
+package edgebit.v1alpha.inventory;
+
+/*
+ * InventoryService is used to report which packages are installed and are in-use
+ */
+service InventoryService {
+    // Report installed RPM packages on the node
+    rpc ReportRpm (ReportRpmRequest) returns (Void) {};
+
+    // Report installed Debian packages on the node
+    rpc ReportDeb (ReportDebRequest) returns (Void) {};
+
+    // Report files that were used (open) on the machine
+    rpc ReportInUse(ReportInUseRequest) returns (Void) {};
+}
+
+message Rpm {
+    string id = 1;
+    string name = 2;
+    string version = 3;
+    string release = 4;
+    string epoch = 5;
+    string os = 6;
+    string arch = 7;
+    string summary = 8;
+    repeated string files = 9;
+}
+
+message ReportRpmRequest {
+    repeated Rpm installed = 1;
+}
+
+message ReportDebRequest {
+}
+
+message PkgInUse {
+    // id of the package as was identified by the id field of Rpm/Deb/etc.
+    // If id is empty, it implies that the package is unknown.
+    string id = 1;
+    repeated string files = 2;
+}
+
+message ReportInUseRequest {
+    repeated PkgInUse in_use = 1;
+}
+
+message Void {}
