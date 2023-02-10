@@ -1,31 +1,34 @@
 syntax = "proto3";
-package edgebit.v1alpha.inventory;
+package edgebit.agent.v1alpha;
 
 /*
  * InventoryService is used to report which packages are installed and are in-use
  */
 service InventoryService {
     // Uploads the SBOM of an node
-    rpc UploadSbom(stream UploadSbomRequest) returns (Void) {};
+    rpc UploadSbom(stream UploadSbomRequest) returns (UploadSbomResponse) {};
 
     // Report files that were used (open) on the machine
-    rpc ReportInUse(ReportInUseRequest) returns (Void) {};
+    rpc ReportInUse(ReportInUseRequest) returns (ReportInUseResponse) {};
 }
 
 enum SbomFormat {
-	SBOMFMT_SYFT = 0;
+    SBOM_FORMAT_UNSPECIFIED = 0;
+    SBOM_FORMAT_SYFT = 1;
 }
 
 message UploadSbomHeader {
-	SbomFormat format = 1;
+    SbomFormat format = 1;
 }
 
 message UploadSbomRequest {
-	oneof kind {
-		UploadSbomHeader header = 1;
-		bytes data = 2;
-	}
+    oneof kind {
+        UploadSbomHeader header = 1;
+        bytes data = 2;
+    }
 }
+
+message UploadSbomResponse {}
 
 message PkgInUse {
     // id of the package as was identified by the id field of Rpm/Deb/etc.
@@ -38,4 +41,4 @@ message ReportInUseRequest {
     repeated PkgInUse in_use = 1;
 }
 
-message Void {}
+message ReportInUseResponse {}
