@@ -1,0 +1,29 @@
+syntax = "proto3";
+package edgebit.agent.v1alpha;
+
+import "google/protobuf/timestamp.proto";
+
+service TokenService {
+    rpc EnrollAgent (EnrollAgentRequest) returns (EnrollAgentResponse) {}
+    rpc GetSessionToken (GetSessionTokenRequest) returns (GetSessionTokenResponse) {}
+}
+
+message EnrollAgentRequest {
+    string deployment_token = 1;
+    string hostname = 2;
+}
+
+message EnrollAgentResponse {
+    string refresh_token = 1;
+    string session_token = 2;
+    google.protobuf.Timestamp session_token_expiration = 3;
+}
+
+message GetSessionTokenRequest {
+    string refresh_token = 1;
+}
+
+message GetSessionTokenResponse {
+    string session_token = 1;
+    google.protobuf.Timestamp session_token_expiration = 2;
+}
