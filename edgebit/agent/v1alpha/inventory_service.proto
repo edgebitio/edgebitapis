@@ -9,7 +9,7 @@ import "google/protobuf/timestamp.proto";
 service InventoryService {
     // Reports that a workload, such as a host or a container, was started.
     // Includes a 
-	rpc UpsertWorkload(UpsertWorkloadRequest) returns (UpsertWorkloadResponse) {};
+    rpc UpsertWorkload(UpsertWorkloadRequest) returns (UpsertWorkloadResponse) {};
 
     // Uploads the SBOM for a particular image.
     rpc UploadSbom(stream UploadSbomRequest) returns (UploadSbomResponse) {};
@@ -20,18 +20,18 @@ service InventoryService {
 
 message Host {
     // The hostname as reported by gethostname()
-	string hostname = 1;
+    string hostname = 1;
 
     // VM instance ID (e.g. EC2 instance); optional
-	string instance = 2;
+    string instance = 2;
 
     // Distro pretty name (from /etc/eos-release)
-	string distro = 3;
+    string os_pretty_name = 3;
 }
 
 message Container {
     // The name as assigned by the container runtime; optional
-	string name = 1;
+    string name = 1;
 }
 
 message Workload {
@@ -39,10 +39,10 @@ message Workload {
     // Example: [ "host-a23cd4", "k8s", "pod-nginx" ]
     repeated string group = 1;
 
-	oneof kind {
-		Host host = 2;
-		Container container = 3;
-	}
+    oneof kind {
+        Host host = 2;
+        Container container = 3;
+    }
 }
 
 // An image with no further details. This primarily happens when an SBOM tool
@@ -52,11 +52,10 @@ message GenericImage {
 
 // Docker image
 message DockerImage {
-    // Repository that hosts the repo or empty for Docker hub
-    string name = 1;
-
-    // Tag
-    string tag = 2;
+    // Potentially full tag in registry/user/name:tag format.
+    // The full format does not need to be used. The same defaults
+    // that "docker pull" assumes will work.
+    string tag = 1;
 }
 
 message AMI {
@@ -66,7 +65,7 @@ message AMI {
 }
 
 message Image {
-	// type: Docker | OCI | AMI | ...
+    // type: Docker | OCI | AMI | ...
     oneof kind {
         GenericImage generic = 1;
         DockerImage docker = 2;
@@ -76,19 +75,19 @@ message Image {
 
 message UpsertWorkloadRequest {
     // UUID of the workload
-	string workload_id = 1;
+    string workload_id = 1;
 
     // Workload type and type specific data
-	Workload workload = 2;
+    Workload workload = 2;
 
     // Host boot time, container start time, etc; optional
-	google.protobuf.Timestamp start_time = 3;
+    google.protobuf.Timestamp start_time = 3;
 
     // Host shutdown time, container stop time, etc; optional
-	google.protobuf.Timestamp end_time = 4;
+    google.protobuf.Timestamp end_time = 4;
 
     // Image ID (as registered by a previous UploadSbom()); optional
-	string image_id = 5;
+    string image_id = 5;
 
     // Image type and type specific data; optional
     Image image = 6;
