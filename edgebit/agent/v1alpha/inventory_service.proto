@@ -1,16 +1,99 @@
 syntax = "proto3";
 package edgebit.agent.v1alpha;
 
+import "google/protobuf/timestamp.proto";
+
 /*
  * InventoryService is used to report which packages are installed and are in-use
  */
 service InventoryService {
-    // Uploads the SBOM of an node
+    // Reports that a workload, such as a host or a container, was started.
+    // Includes a 
+    rpc UpsertWorkload(UpsertWorkloadRequest) returns (UpsertWorkloadResponse) {};
+
+    // Uploads the SBOM for a particular image.
     rpc UploadSbom(stream UploadSbomRequest) returns (UploadSbomResponse) {};
 
     // Report files that were used (open) on the machine
     rpc ReportInUse(ReportInUseRequest) returns (ReportInUseResponse) {};
 }
+
+message Host {
+    // The hostname as reported by gethostname()
+    string hostname = 1;
+
+    // VM instance ID (e.g. EC2 instance); optional
+    string instance = 2;
+
+    // Distro pretty name (from /etc/eos-release)
+    string os_pretty_name = 3;
+}
+
+message Container {
+    // The name as assigned by the container runtime; optional
+    string name = 1;
+}
+
+message Workload {
+    // Group path to indicate where the workload fits in organizationally.bool
+    // Example: [ "host-a23cd4", "k8s", "pod-nginx" ]
+    repeated string group = 1;
+
+    oneof kind {
+        Host host = 2;
+        Container container = 3;
+    }
+}
+
+// An image with no further details. This primarily happens when an SBOM tool
+// (e.g. syft) is ran on the workload (e.g. after a host boots)
+message GenericImage {
+}
+
+// Docker image
+message DockerImage {
+    // Potentially full tag in registry/user/name:tag format.
+    // The full format does not need to be used. The same defaults
+    // that "docker pull" assumes will work.
+    string tag = 1;
+}
+
+message AMI {
+    string name = 1;
+
+    repeated string tags = 2;
+}
+
+message Image {
+    // type: Docker | OCI | AMI | ...
+    oneof kind {
+        GenericImage generic = 1;
+        DockerImage docker = 2;
+        AMI ami = 3;
+    }
+}
+
+message UpsertWorkloadRequest {
+    // UUID of the workload
+    string workload_id = 1;
+
+    // Workload type and type specific data
+    Workload workload = 2;
+
+    // Host boot time, container start time, etc; optional
+    google.protobuf.Timestamp start_time = 3;
+
+    // Host shutdown time, container stop time, etc; optional
+    google.protobuf.Timestamp end_time = 4;
+
+    // Image ID (as registered by a previous UploadSbom()); optional
+    string image_id = 5;
+
+    // Image type and type specific data; optional
+    Image image = 6;
+}
+
+message UpsertWorkloadResponse {}
 
 enum SbomFormat {
     SBOM_FORMAT_UNSPECIFIED = 0;
@@ -19,6 +102,8 @@ enum SbomFormat {
 
 message UploadSbomHeader {
     SbomFormat format = 1;
+    string image_id = 2;
+    Image image = 3;
 }
 
 message UploadSbomRequest {
@@ -39,6 +124,7 @@ message PkgInUse {
 
 message ReportInUseRequest {
     repeated PkgInUse in_use = 1;
+    string workload_id = 2;
 }
 
 message ReportInUseResponse {}
