@@ -11,6 +11,7 @@ service TokenService {
 message EnrollAgentRequest {
     string deployment_token = 1;
     string hostname = 2;
+	string agent_version = 3;
 }
 
 message EnrollAgentResponse {
@@ -21,6 +22,7 @@ message EnrollAgentResponse {
 
 message GetSessionTokenRequest {
     string refresh_token = 1;
+	string agent_version = 2;
 }
 
 message GetSessionTokenResponse {
