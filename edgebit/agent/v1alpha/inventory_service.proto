@@ -16,6 +16,9 @@ service InventoryService {
 
     // Report files that were used (open) on the machine
     rpc ReportInUse(ReportInUseRequest) returns (ReportInUseResponse) {};
+
+    // Resets all associated workloads by marking them stopped
+    rpc ResetWorkloads(ResetWorkloadsRequest) returns (ResetWorkloadsResponse) {};
 }
 
 message Host {
@@ -34,10 +37,28 @@ message Container {
     string name = 1;
 }
 
+// namespaces
+// k8s, vm, ec2, ec2label, gce, user-label:bu=accounting
+
+enum LabelNamespace {
+    LABEL_NAMESPACE_UNSPECIFIED = 0;
+    LABEL_NAMESPACE_DOCKER = 1;
+    LABEL_NAMESPACE_K8S = 2;
+    LABEL_NAMESPACE_VM = 3;
+    LABEL_NAMESPACE_EC2 = 4;
+    LABEL_NAMESPACE_GCE = 5;
+    LABEL_NAMESPACE_AZURE = 6;
+    LABEL_NAMESPACE_USER = 7;
+}
+
+message Label {
+    LabelNamespace ns = 1;
+    string name = 2;
+    string value = 3;
+}
+
 message Workload {
-    // Group path to indicate where the workload fits in organizationally.bool
-    // Example: [ "host-a23cd4", "k8s", "pod-nginx" ]
-    repeated string group = 1;
+    repeated Label labels = 1;
 
     oneof kind {
         Host host = 2;
@@ -73,6 +94,12 @@ message Image {
     }
 }
 
+message ResetWorkloadsRequest {}
+
+message ResetWorkloadsResponse {}
+
+message WorkloadSnapshotsResponse {}
+
 message UpsertWorkloadRequest {
     // UUID of the workload
     string workload_id = 1;
@@ -80,10 +107,13 @@ message UpsertWorkloadRequest {
     // Workload type and type specific data
     Workload workload = 2;
 
-    // Host boot time, container start time, etc; optional
+    // Host boot time, container start time, etc; if missing, start_time is unknown.
+    // If an update, the previous known start time can be preserved.
     google.protobuf.Timestamp start_time = 3;
 
-    // Host shutdown time, container stop time, etc; optional
+    // Host shutdown time, container stop time, etc. If missing:
+    // If an insert, the container is running
+    // If an update, the previous known end time can be preserved.
     google.protobuf.Timestamp end_time = 4;
 
     // Image ID (as registered by a previous UploadSbom()); optional
