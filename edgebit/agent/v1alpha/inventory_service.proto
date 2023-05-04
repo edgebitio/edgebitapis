@@ -40,25 +40,8 @@ message Container {
 // namespaces
 // k8s, vm, ec2, ec2label, gce, user-label:bu=accounting
 
-enum LabelNamespace {
-    LABEL_NAMESPACE_UNSPECIFIED = 0;
-    LABEL_NAMESPACE_DOCKER = 1;
-    LABEL_NAMESPACE_K8S = 2;
-    LABEL_NAMESPACE_VM = 3;
-    LABEL_NAMESPACE_EC2 = 4;
-    LABEL_NAMESPACE_GCE = 5;
-    LABEL_NAMESPACE_AZURE = 6;
-    LABEL_NAMESPACE_USER = 7;
-}
-
-message Label {
-    LabelNamespace ns = 1;
-    string name = 2;
-    string value = 3;
-}
-
 message Workload {
-    repeated Label labels = 1;
+    map<string, string> labels = 1;
 
     oneof kind {
         Host host = 2;
