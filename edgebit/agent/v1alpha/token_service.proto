@@ -4,7 +4,13 @@ package edgebit.agent.v1alpha;
 import "google/protobuf/timestamp.proto";
 
 service TokenService {
+    // Enroll a node agent using the deployment token
     rpc EnrollAgent (EnrollAgentRequest) returns (EnrollAgentResponse) {}
+
+    // Enroll a cluster agent using the deployment token
+    rpc EnrollClusterAgent (EnrollClusterAgentRequest) returns (EnrollClusterAgentResponse) {}
+
+    // Given a refresh token, exchange it for a session token
     rpc GetSessionToken (GetSessionTokenRequest) returns (GetSessionTokenResponse) {}
 }
 
@@ -21,7 +27,26 @@ message EnrollAgentResponse {
     google.protobuf.Timestamp session_token_expiration = 3;
 }
 
+message Token {
+    oneof token_type {
+        string api_token = 1;
+        // Reserved for the use with JWT/identity tokens
+    }
+}
+
+message EnrollClusterAgentRequest {
+    Token deployment_token = 1;
+    string agent_version = 2;
+}
+
+message EnrollClusterAgentResponse {
+    string session_token = 1;
+    google.protobuf.Timestamp session_token_expiration = 2;
+}
+
 message GetSessionTokenRequest {
+    // if refresh_token is empty, a non-expired session token (via Authentication HTTP header)i
+    // can be used instead
     string refresh_token = 1;
     string agent_version = 2;
 }
