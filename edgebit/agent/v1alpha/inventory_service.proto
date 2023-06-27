@@ -203,8 +203,11 @@ message Machine {
     // ID taken from /etc/machine-id
     string id = 1;
 
-    // Hostname reported by gethostname(), the cluster cluster manager or user specified
+    // Hostname reported by gethostname(), the cluster manager or user specified
     string hostname = 2;
+
+    // Labels provides additional metadata about the machine
+    map<string, string> labels = 3;
 }
 
 message UpsertMachinesRequest {
