@@ -1,0 +1,93 @@
+syntax = "proto3";
+package edgebit.v1alpha;
+
+service AutofixService {
+    // Start an analysis of the PR
+    rpc StartAnalysis(StartAnalysisRequest) returns (StartAnalysisResponse) {}
+
+    // Get the status of the analysis
+    rpc GetAnalysisStatus(GetAnalysisStatusRequest) returns (GetAnalysisStatusResponse) {}
+
+    // Fetch the results of the analysis
+    rpc FetchAnalysisResults(FetchAnalysisResultsRequest) returns (FetchAnalysisResultsResponse) {}
+}
+
+message GitHubRepo {
+    // The GitHub auth token with "Contents: Read" and optional "Packages: Read" permissions
+    string auth_token = 1;
+
+    // The GitHub owner (organization or user)
+    string owner = 2;
+
+    // The GitHub repository name
+    string repo = 3;
+}
+
+message StartAnalysisRequest {
+    // The repository to analyze
+    oneof oneof_repo {
+        GitHubRepo github_repo = 1;
+    }
+
+    // The base revision (sha, branch, tag) to analyze
+    string base_rev = 2;
+
+    // The path to the project root directory (location of package.json and lockfile)
+    string base_path = 3;
+
+    // The target revision (sha, branch, tag) to analyze
+    string target_rev = 4;
+
+    // The path to the target project root directory (location of package.json and lockfile).
+    // If not provided, the base path will be used.
+    string target_path = 5;
+}
+
+message StartAnalysisResponse {
+    // The analysis ID
+    string analysis_id = 1;
+
+    // The job ID (for troubleshooting when contacting support)
+    string job_id = 2;
+}
+
+message GetAnalysisStatusRequest {
+    // The analysis ID
+    string analysis_id = 1;
+}
+
+enum AnalysisStatus {
+    ANALYSIS_STATUS_UNSPECIFIED = 0;
+    ANALYSIS_STATUS_PENDING = 1;
+    ANALYSIS_STATUS_SUCCEEDED = 2;
+    ANALYSIS_STATUS_FAILED = 3;
+}
+
+message GetAnalysisStatusResponse {
+    // The status of the analysis
+    AnalysisStatus status = 1;
+
+    // The error message if the analysis failed
+    string message = 2;
+
+    // The job ID (for troubleshooting when contacting support)
+    string job_id = 3;
+}
+
+message FetchAnalysisResultsRequest {
+    // The analysis ID
+    string analysis_id = 1;
+}
+
+enum BundleFormat {
+    BUNDLE_FORMAT_UNSPECIFIED = 0;
+    BUNDLE_FORMAT_TAR_GZ = 1;
+}
+
+message FetchAnalysisResultsResponse {
+    // The format of the bundle
+    BundleFormat bundle_format = 1;
+
+    // The bundle content
+    bytes bundle = 2;
+}
