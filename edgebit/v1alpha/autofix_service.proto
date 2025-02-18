@@ -84,10 +84,30 @@ enum BundleFormat {
     BUNDLE_FORMAT_TAR_GZ = 1;
 }
 
+message SymbolAnalysis {
+    string evaluation = 1;
+    string kind = 2;
+    string filename = 3;
+    string symbol_name = 4;
+    string semantic_change = 5;
+}
+
 message FetchAnalysisResultsResponse {
     // The format of the bundle
     BundleFormat bundle_format = 1;
 
     // The bundle content
     bytes bundle = 2;
+
+    // Direct or transitive dependency change visualization (SVG)
+    string changes_svg_url = 3;
+
+    // Direct or transitive dependency change visualization (PNG)
+    string changes_png_url = 4;
+
+    // Summary of the analysis behavior change
+    string overall_behavior = 5;
+
+    // Per changed symbol behavior summary
+    repeated SymbolAnalysis symbol_behavior = 6;
 }
