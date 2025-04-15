@@ -73,6 +73,9 @@ message DockerImage {
     // The full format does not need to be used. The same defaults
     // that "docker pull" assumes will work.
     string tag = 1;
+
+    // The repo (manifest) digests
+    repeated string repo_digests = 2;
 }
 
 message AMI {
