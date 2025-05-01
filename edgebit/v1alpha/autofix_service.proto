@@ -110,4 +110,7 @@ message FetchAnalysisResultsResponse {
 
     // Per changed symbol behavior summary
     repeated SymbolAnalysis symbol_behavior = 6;
+
+    // Overall accuracy confidence score
+    double confidence = 7;
 }
