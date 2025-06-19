@@ -23,6 +23,18 @@ message GitHubRepo {
     string repo = 3;
 }
 
+message NpmRegistry {
+    // Registry hostname and optional port
+    string registry_host = 1;
+
+    // The scope of the registry
+    string scope = 2;
+
+    // The token to use to authenticate with the registry
+    string token = 3;
+}
+
+
 message StartAnalysisRequest {
     // The repository to analyze
     oneof oneof_repo {
@@ -41,6 +53,9 @@ message StartAnalysisRequest {
     // The path to the target project root directory (location of package.json and lockfile).
     // If not provided, the base path will be used.
     string target_path = 5;
+
+    // Private NPM registries to authenticate with
+    repeated NpmRegistry npm_auth = 6;
 }
 
 message StartAnalysisResponse {
